@@ -1,15 +1,19 @@
 const { Conflict } = require("http-errors");
 const { User } = require("../../models");
+const gravatar = require('gravatar');
 
 
 const signup = async (req, res) => {
   const { email, password, subscription } = req.body;
-  const user = await User.findOne({email});
+  const user = await User.findOne({ email });
+  
   if (user) {
     throw new Conflict(`User with email ${email} already exist`);
-  }
+  } 
 
-  const newUser = new User({email, subscription});
+  const avatarURL = gravatar.url(email);
+
+  const newUser = new User({email, subscription, avatarURL});
   newUser.setPassword(password);
   newUser.save();
 
@@ -19,6 +23,7 @@ const signup = async (req, res) => {
     data: {
       user: {
         email,
+        avatarURL,
         subscription,
       },
     },
